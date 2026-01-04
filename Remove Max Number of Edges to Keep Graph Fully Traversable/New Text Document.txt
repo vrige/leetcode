@@ -1,0 +1,64 @@
+import numpy as np
+
+class Solution:
+    def maxNumEdgesToRemove(self, n: int, edges: List[List[int]]) -> int:
+        lists = self.createAliceAndBobLists(edges)
+        alice = lists[0]
+        bob = lists[1]
+
+        [alice_mat, alice_rem] = self.removeOverlapping(n, alice)
+        [bob_mat, bob_rem] = self.removeOverlapping(n, bob)
+
+        print(str(alice_mat))
+        print(str(bob_mat))
+
+        if self.check(alice_mat) or self.check(bob_mat):
+            return 3
+        else:
+            return -1
+
+        return 2
+
+    def createAliceAndBobLists(self, edges: List[List[int]]) -> int:
+        bob = []
+        alice = []
+        for i in edges:
+            if i[0] == 1:
+                alice.append(i)
+            elif i[0] == 2:
+                bob.append(i)
+            else:
+                alice.append(i)
+                bob.append(i)
+        return [alice, bob]
+    
+    # Assumption: if you need to choose between a type (1,2) and 3, keep always 3
+    # Assumption: remove self-loops
+    def removeOverlapping(self, n: int, edges: List[List[int]]):
+        mat = np.zeros((4,4))
+        removed = []
+
+        for i in edges:
+            if i[1] == i[2]:
+                removed.append(i)
+            elif (mat[i[1]-1,i[2]-1] == 1 or mat[i[1]-1,i[2]-1] == 2) and i[0] == 3:
+                mat[i[1]-1,i[2]-1] = 3
+                mat[i[2]-1,i[1]-1] = 3
+            elif mat[i[1]-1,i[2]-1] == 0:
+                mat[i[1]-1,i[2]-1] += i[0]
+                mat[i[2]-1,i[1]-1] += i[0]
+            else:
+                removed.append(i)
+        return [mat, removed]
+
+    def check(self, mat): 
+        for i in range(mat.shape[0]):
+            if np.sum(mat[i]) == 0:
+                return False
+        return True 
+
+    def countErrors(self, mat):
+        count_l = []
+        for i in range(mat.shape[0]):
+            count_l.append(np.count(mat[i,:] >= 1))
+        

@@ -1,0 +1,60 @@
+class Solution:
+
+    def isMatch(self, s: str, p: str) -> bool:
+        
+
+        if s == p and len(s) == len(p):
+            return True
+        
+        def recur(inp, ee):
+
+            index = []  # *
+            points = [] # .
+            crazy = []  # .*
+            skip = False
+            for i,v in enumerate(ee):
+                if skip:
+                    skip = False
+                    continue
+                if v == "*":
+                    index.append(i-1)
+                if v == ".":
+                    if i + 1 <= len(ee) - 1 and ee[i+1] == "*":
+                        skip = True
+                        crazy.append(i)
+                    else:
+                        points.append(i)
+
+            print(index)
+            print(points)
+            print(str(crazy) + "\n")
+            skip = False
+            for j, v_j in enumerate(ee):
+                if len(inp) == 0 and j == len(ee) - 1:
+                    return True
+                if skip:
+                    skip = False
+                    continue
+                if j in index:
+                    
+                    while len(inp) > 0 and inp[0] == v_j:
+                        inp = inp[1:]
+                    skip = True
+                    continue
+                if j in points and len(inp) > 0:
+                    inp = inp[1:]
+                    continue
+                if j in crazy:
+                    if j + 2 > len(ee) - 1:
+                        return True
+                    ee = ee[j+2:]
+                    for i in range(len(inp)):
+                        return recur(inp[i:], ee) 
+                
+                if v_j == inp[0]:
+                    inp = inp[1:]
+                else:
+                    return False
+
+
+        return recur(s, p)
